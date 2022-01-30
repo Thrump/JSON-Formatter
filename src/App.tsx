@@ -7,19 +7,39 @@ import {
   VStack,
   useToast,
   Center,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from '@chakra-ui/react'
-import { SetStateAction, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 
 function App() {
   const [textValue, setTextValue] = useState('')
   const [jsonValue, setJsonValue] = useState('')
+  const [jsonError, setJsonError] = useState(false)
   const toast = useToast()
 
-  const inputChange = (e: { target: { value: SetStateAction<string> } }) => {
+  const inputChange = (e: { target: { value: string } }) => {
     setTextValue(e.target.value)
-    const obj = JSON.parse(textValue)
-    setJsonValue(JSON.stringify(obj, null, 2))
+    let obj;
+    if(e.target.value === ""){
+      setJsonError(false)
+      setJsonValue("")
+    }else {
+      try {
+        obj = JSON.parse(e.target.value)
+        setJsonError(false);
+        setJsonValue(JSON.stringify(obj, null, 2))
+     } catch (error) {
+       obj = {}
+       setJsonError(true);
+       setJsonValue("")
+     }
+     
+    }
+    
   }
 
   const addClipboard = () => {
@@ -83,6 +103,15 @@ function App() {
             />
           </VStack>
         </HStack>
+        { jsonError &&
+          <Center pt="16px">
+            <Alert status='error' justifyContent={'center'}>
+              <AlertIcon/>
+              <AlertTitle> Error! </AlertTitle>
+              <AlertDescription> Invalid JSON format!</AlertDescription>
+            </Alert>
+          </Center>
+        }
       </div>
     </div>
   )
